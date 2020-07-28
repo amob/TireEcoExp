@@ -10,4 +10,4 @@ Anna M. O’Brien1,2, Tiago F. Lins2, Yamin Yang2,3, Megan E. Frederickson1, Dav
 
 Code authored by Anna O'Brien
 
-One r-script produces results and figures (pdf).  Input files are .csv
+One r-script produces results and figures resulting from data analysis (in pdf).  Input files are .csv
