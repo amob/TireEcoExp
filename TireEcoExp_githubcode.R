@@ -601,5 +601,3 @@ plot(grnmns[grntire==0]~grnco2[grntire==0],ylim=c(0.405,0.45),xlim=c(380,1040),p
 	legend(700,y=0.45,legend=c("0x","0.5x"),fill=c(rgb(0,0,1),rgb(0,0,0)),bty="n")	
 	mtext("b)", side =3, adj=-0.4, line=0.5)
 dev.off()
-
-
