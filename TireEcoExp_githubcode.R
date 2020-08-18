@@ -5,14 +5,14 @@
 		## microbe ''fitness'', 
 		## fitness correlations, 
 		## and duckweed trait "greenness"
-###
+###NOTE to users: paths to inputs and outputs will not be the same on your local system. 
 
 library(MCMCglmm)
 library(MuMIn)
 
 ################################
 ################################
-##DEFINING UNCTIONS
+##DEFINING FUNCTIONS
 ###############################
 ###############################
 
@@ -65,7 +65,8 @@ ODtoCells <- function(x){
 ###############################
 
 #read in temperature measures and inferred points then impute weighted mean temperature for each well
-ImputedT <- read.csv("~/Dropbox/TireEcoExp/TireEcoExpPlateTemps_inferred_imputed.csv",header=T,stringsAsFactors=T)
+ImputedT <- read.csv("~/Dropbox/TireEcoExp/TireEcoExpPlateTemps_inferred_imputed_s.csv",header=T,stringsAsFactors=T)
+#THIS is Raw input file for analysis 2
 cornercols <- which(colnames(ImputedT)%in%c("a1.skirt","h1.skirt","a12.skirt","h12.skirt"))
 rndpltavs <- lapply(1:3, function(r) lapply(1:3, function(p) colMeans(ImputedT[ImputedT$round==r & ImputedT$plate==p,cornercols])  ) )
 rndpltavsmat <- matrix(unlist(rndpltavs),ncol=4,byrow=T)
@@ -94,26 +95,34 @@ simplates <- list(lapply(1:3, function(z) platetemps(rndpltavsmat[z,])),lapply(4
 
 #
 #read in start and end image analyses and roi to well map files
-tirestartdat <- read.csv("~/Dropbox/TireEcoExp/Tire_EcoExp_StartDat.csv",header=T,stringsAsFactors=F)#
-tireenddat <- read.csv("~/Dropbox/TireEcoExp/Tire_EcoExp_EndDat.csv",header=T,stringsAsFactors=F)#
-tirestartmap <- read.csv("~/Dropbox/TireEcoExp/StartFrondsandMap.csv",header=T,stringsAsFactors=F)
-tireendmap <- read.csv("~/Dropbox/TireEcoExp/EndFrondsandMap.csv",header=T,stringsAsFactors=F)
+tirestartdat <- read.csv("~/Dropbox/TireEcoExp/Tire_EcoExp_StartDat_s.csv",header=T,stringsAsFactors=F)#
+#THIS is Raw data 3
+tireenddat <- read.csv("~/Dropbox/TireEcoExp/Tire_EcoExp_EndDat_s.csv",header=T,stringsAsFactors=F)#
+#THIS is Raw data 4
+tirestartmap <- read.csv("~/Dropbox/TireEcoExp/StartFrondsandMap_s.csv",header=T,stringsAsFactors=F)
+#THIS is Raw data 1
+tireendmap <- read.csv("~/Dropbox/TireEcoExp/EndFrondsandMap_s.csv",header=T,stringsAsFactors=F)
+#THIS is Raw data 2
 
-trts <- read.csv("~/Dropbox/TireEcoExp/TireEcoExp_Design.csv")
+trts <- read.csv("~/Dropbox/TireEcoExp/TireEcoExp_Design_s.csv")
+#THIS is Raw input file for analysis 1
 trts$numrow <- as.numeric(as.factor(trts$row))
 #trts$co2 <- seq(from = 1000, to = 400, length.out=8)[trts$numrow]
 trts$temp <- sapply(1:nrow(trts), function(z) simplates[[trts$round[z]]][[trts$plate[z]]][trts$numrow[z],trts$col[z]] )
 
 #optical density files
-r1od <- read.csv("~/Dropbox/TireEcoExp/AO TireEcoRound1_sort.csv",header=T,stringsAsFactors=F)#
-r2od <- read.csv("~/Dropbox/TireEcoExp/AO TireEcoRound2_sort.csv",header=T,stringsAsFactors=F)#
-r3od <- read.csv("~/Dropbox/TireEcoExp/AO TireEcoRound3_sort.csv",header=T,stringsAsFactors=F)#
+r1od <- read.csv("~/Dropbox/TireEcoExp/AO TireEcoRound1_sort_s.csv",header=T,stringsAsFactors=F)#
+#THIS is Raw data 5
+r2od <- read.csv("~/Dropbox/TireEcoExp/AO TireEcoRound2_sort_s.csv",header=T,stringsAsFactors=F)#
+#THIS is Raw data 6
+r3od <- read.csv("~/Dropbox/TireEcoExp/AO TireEcoRound3_sort_s.csv",header=T,stringsAsFactors=F)#
+#THIS is Raw data 7
 
 
 #should be true if sheets organized as expected.
  colnames(r1od)[c(1:6,11,12)] ==  colnames(r2od)[c(1:6,11,12)]
  colnames(r1od)[c(1:6,11,12)] ==  colnames(r3od)[c(1:6,15,16)]
-oddat <- rbind(r1od[,c(1:6,11,12)],r2od[-which(r2od$plate=="3error"),c(1:6,11,12)],r3od[,c(1:6,15,16)])
+oddat <- rbind(r1od[,c(1:6,11,12)],r2od[,c(1:6,11,12)],r3od[,c(1:6,15,16)])
 
 #preprocess dat files
 startplate <- rep(NA,length.out=nrow(tirestartdat))
@@ -188,7 +197,7 @@ co2s <- as.factor(trts$co2)
 co2levs <-  c(400,round(400 + (600/7)*c(1:6)),1000)
 levels(co2s) <- co2levs
 tiremapdatend$co2 <- as.numeric(as.character(co2s))
-tiremapdatstart <- MapToWellsT(tirestartdat3,tirestartmap2,firstcol=9,sumcols=c(5,7),meancols=c(6,12,13,18,19:21,25:27))
+tiremapdatstart <- MapToWellsT(tirestartdat3,tirestartmap2,firstcol=8,sumcols=c(5,7),meancols=c(6,12,13,18,19:21,25:27))
 tiremapdatstart$numrow <- as.numeric(as.factor(tiremapdatstart$row))
 tiremapdatend$temp <- trts$temp
 deltapix <- tiremapdatend$area-tiremapdatstart$area # change in pixel area variable
@@ -220,7 +229,6 @@ nondry$co210 <- nondry$co2 / 100
 inoconly <- nondry[nondry$microbe=="y",]
 nondrylive <- nondry[nondry$is.alive==1,]
 inoconlylive <- inoconly[inoconly$is.alive==1,] #is also excluding dry wells
-
 
 ################################
 ################################
@@ -601,3 +609,4 @@ plot(grnmns[grntire==0]~grnco2[grntire==0],ylim=c(0.405,0.45),xlim=c(380,1040),p
 	legend(700,y=0.45,legend=c("0x","0.5x"),fill=c(rgb(0,0,1),rgb(0,0,0)),bty="n")	
 	mtext("b)", side =3, adj=-0.4, line=0.5)
 dev.off()
+
